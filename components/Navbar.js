@@ -47,7 +47,7 @@ const Navbar1 = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-end bg-black fixed w-full top-0 left-0 right-0 p-2">
+    <div className="flex items-center justify-end fixed w-full top-0 left-0 right-0 p-2 shadow-md">
       <Dropdown placement="bottom-end">
         <DropdownTrigger>
           <div className="mr-5 cursor-pointer font-popin">

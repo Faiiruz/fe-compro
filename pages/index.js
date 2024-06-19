@@ -30,7 +30,7 @@ export default function Home() {
   useEffect(() => {
     const fetchHeaderData = async () => {
       try {
-        let url = "http://localhost:3011/header";
+        let url = "http://localhost:3011/headers";
         const params = new URLSearchParams(router.query);
         const search = params.get("search");
         if (search) {

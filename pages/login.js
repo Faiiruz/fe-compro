@@ -44,7 +44,6 @@ export default function Login() {
         pauseOnHover: false,
         draggable: true,
         progress: undefined,
-        theme: "dark",
       });
     }
     setIsLoading(true);
@@ -69,7 +68,6 @@ export default function Login() {
           pauseOnHover: false,
           draggable: true,
           progress: undefined,
-          theme: "dark",
         });
         router.push("/");
       } else {
@@ -81,7 +79,6 @@ export default function Login() {
           pauseOnHover: false,
           draggable: true,
           progress: undefined,
-          theme: "dark",
         });
       }
     } catch (error) {
@@ -93,7 +90,6 @@ export default function Login() {
         pauseOnHover: false,
         draggable: true,
         progress: undefined,
-        theme: "dark",
       });
     } finally {
       setIsLoading(false);
@@ -137,7 +133,12 @@ export default function Login() {
                   type={isVisible ? "text" : "password"}
                 />
               </div>
-              <Button className="w-full" type="submit" loading={isLoading}>
+              <Button
+                color="primary"
+                className="w-full"
+                type="submit"
+                loading={isLoading}
+              >
                 {isLoading ? <Spinner color="white" /> : "Login"}
               </Button>
             </form>

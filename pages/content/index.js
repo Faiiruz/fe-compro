@@ -5,7 +5,7 @@ import axios from "axios";
 import moment from "moment";
 import "moment/locale/id";
 import Swal from "sweetalert2/dist/sweetalert2.js";
-import "@sweetalert2/theme-dark/dark.scss";
+import "sweetalert2/src/sweetalert2.scss";
 import {
   Table,
   TableHeader,
@@ -40,7 +40,7 @@ export default function Content() {
 
   const fetchHeaderData = async () => {
     try {
-      let url = "http://localhost:3011/header/";
+      let url = "http://localhost:3011/headers";
       const params = new URLSearchParams(router.query);
       const search = params.get("search");
       if (search) {
@@ -88,7 +88,7 @@ export default function Content() {
   };
 
   const handleAddHeader = async () => {
-    const response = await axios.post("http://localhost:3011/header", {
+    const response = await axios.post("http://localhost:3011/headers", {
       title: inputTitle,
     });
     if (response.status === 201) {
@@ -108,9 +108,12 @@ export default function Content() {
   };
 
   const handleEditHeader = async () => {
-    const response = await axios.put(`http://localhost:3011/header/${editId}`, {
-      title: inputTitle,
-    });
+    const response = await axios.put(
+      `http://localhost:3011/headers/${editId}`,
+      {
+        title: inputTitle,
+      }
+    );
     if (response.status === 200) {
       Swal.fire({
         icon: "success",
@@ -139,7 +142,7 @@ export default function Content() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const response = await axios.delete(
-          `http://localhost:3011/header/${id}`
+          `http://localhost:3011/headers/${id}`
         );
         if (response.status === 200) {
           Swal.fire("Deleted!", "Your app has been deleted.", "success");
@@ -248,6 +251,7 @@ export default function Content() {
           }
         >
           <TableHeader>
+            <TableColumn className="text-center">No</TableColumn>
             <TableColumn className="text-center">Name</TableColumn>
             <TableColumn className="text-center">Created At</TableColumn>
             <TableColumn className="text-center">Updated At</TableColumn>
@@ -256,6 +260,7 @@ export default function Content() {
           <TableBody items={items}>
             {items.map((header) => (
               <TableRow key={header.id}>
+                <TableCell className="text-center">{header.id}</TableCell>
                 <TableCell className="text-center">
                   <Link underline="always" href={`/content/${header.id}`}>
                     {header.title}

@@ -6,7 +6,7 @@ const Sidebar = () => {
   const router = useRouter();
 
   return (
-    <div className="md:w-56 w-28 font-mons font-semibold h-screen container  p-4 text-sm bg-black">
+    <div className="md:w-56 w-28 font-mons font-semibold h-screen container bg-black/40 p-4 text-sm">
       <ul className="mt-16">
         <li>
           <Link
