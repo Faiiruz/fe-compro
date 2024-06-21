@@ -251,7 +251,6 @@ export default function Content() {
           }
         >
           <TableHeader>
-            <TableColumn className="text-center">No</TableColumn>
             <TableColumn className="text-center">Name</TableColumn>
             <TableColumn className="text-center">Created At</TableColumn>
             <TableColumn className="text-center">Updated At</TableColumn>
@@ -260,7 +259,6 @@ export default function Content() {
           <TableBody items={items}>
             {items.map((header) => (
               <TableRow key={header.id}>
-                <TableCell className="text-center">{header.id}</TableCell>
                 <TableCell className="text-center">
                   <Link underline="always" href={`/content/${header.id}`}>
                     {header.title}
