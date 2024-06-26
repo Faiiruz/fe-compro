@@ -13,17 +13,15 @@ import {
   ModalFooter,
 } from "@nextui-org/react";
 import { IoMdArrowBack } from "react-icons/io";
+import { IoMdAdd } from "react-icons/io";
 
 export default function Detail() {
   const { query } = useRouter();
-  const [header, setHeader] = useState([]);
-  const [listTitle, setListTitle] = useState("");
-  const [listDesc, setListDesc] = useState("");
+  const [header, setHeader] = useState({});
+  const [listTitles, setListTitles] = useState([]);
   const [descTitle, setDescTitle] = useState("");
   const [descText, setDescText] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [imageTitle, setImageTitle] = useState("");
-  const [imageDesc, setImageDesc] = useState("");
+  const [images, setImages] = useState([]);
   const [response, setResponse] = useState(null);
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -35,7 +33,12 @@ export default function Detail() {
         `http://localhost:3011/headers/${query.id}`
       );
       setHeader(response.data);
-      console.log(query.id);
+      setListTitles(response.data.lists || []);
+      if (response.data.descriptions && response.data.descriptions.length > 0) {
+        setDescTitle(response.data.descriptions[0].title || "");
+        setDescText(response.data.descriptions[0].desc || "");
+      }
+      setImages(response.data.images || []);
     } catch (error) {
       console.error("Error fetching header data:", error);
     }
@@ -51,33 +54,128 @@ export default function Detail() {
     router.back();
   };
 
-  const handleSubmit = async () => {
+  const handleAddOrUpdate = async () => {
     try {
-      await axios.post(`http://localhost:3011/lists`, {
-        title: listTitle,
-        desc: listDesc,
-        headerId: parseInt(query.id),
-      });
+      // Update or Add list titles
+      for (const listTitle of listTitles) {
+        if (listTitle.id) {
+          await axios.put(`http://localhost:3011/lists/${listTitle.id}`, {
+            title: listTitle.title,
+            desc: listTitle.desc,
+            headerId: parseInt(query.id),
+          });
+        } else {
+          await axios.post(`http://localhost:3011/lists`, {
+            title: listTitle.title,
+            desc: listTitle.desc,
+            headerId: parseInt(query.id),
+          });
+        }
+      }
 
-      await axios.post(`http://localhost:3011/descriptions`, {
-        title: descTitle,
-        desc: descText,
-        headerId: parseInt(query.id),
-      });
+      // Update or Add description
+      if (header.descriptions && header.descriptions.length > 0) {
+        await axios.put(
+          `http://localhost:3011/descriptions/${header.descriptions[0].id}`,
+          {
+            title: descTitle,
+            desc: descText,
+            headerId: parseInt(query.id),
+          }
+        );
+      } else {
+        await axios.post(`http://localhost:3011/descriptions`, {
+          title: descTitle,
+          desc: descText,
+          headerId: parseInt(query.id),
+        });
+      }
 
-      await axios.post(`http://localhost:3011/images`, {
-        image: imageUrl,
-        title: imageTitle,
-        desc: imageDesc,
-        headerId: parseInt(query.id),
-      });
+      // Update or Add images
+      for (const image of images) {
+        if (image.id) {
+          if (image.file) {
+            const formData = new FormData();
+            formData.append("image", image.file);
+            formData.append("title", image.title);
+            formData.append("desc", image.desc);
+            formData.append("headerId", parseInt(query.id));
 
+            const imageResponse = await axios.put(
+              `http://localhost:3011/images/${image.id}`,
+              formData,
+              {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              }
+            );
+
+            console.log("Image updated:", imageResponse.data);
+          }
+        } else {
+          const formData = new FormData();
+          formData.append("image", image.file);
+          formData.append("title", image.title);
+          formData.append("desc", image.desc);
+          formData.append("headerId", parseInt(query.id));
+
+          const imageResponse = await axios.post(
+            `http://localhost:3011/images`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+
+          console.log("Image added:", imageResponse.data);
+        }
+      }
       setResponse({ success: true });
+
       onOpenChange();
     } catch (error) {
       console.error("Error:", error);
       setResponse({ success: false, error: error.message });
     }
+  };
+
+  const handleAddListTitle = () => {
+    setListTitles([...listTitles, { title: "", desc: "" }]);
+  };
+
+  const handleRemoveListTitle = (index) => {
+    const newListTitles = listTitles.filter((_, i) => i !== index);
+    setListTitles(newListTitles);
+  };
+
+  const handleListTitleChange = (index, field, value) => {
+    const newListTitles = [...listTitles];
+    newListTitles[index][field] = value;
+    setListTitles(newListTitles);
+  };
+
+  const handleAddImage = () => {
+    setImages([...images, { file: null, title: "", desc: "" }]);
+  };
+
+  const handleRemoveImage = (index) => {
+    const newImages = images.filter((_, i) => i !== index);
+    setImages(newImages);
+  };
+
+  const handleImageChange = (index, field, value) => {
+    const newImages = [...images];
+    newImages[index][field] = value;
+    setImages(newImages);
+  };
+
+  const handleImageFileChange = (index, file) => {
+    const newImages = [...images];
+    newImages[index].file = file;
+    setImages(newImages);
   };
 
   return (
@@ -89,9 +187,12 @@ export default function Detail() {
         <h1 className="text-xl font-bold">Detail {header.title}</h1>
       </div>
       <div className="pt-5 flex items-center justify-end">
-        <Button onPress={onOpen}>Add Content</Button>
+        <Button onPress={onOpen}>
+          {query.id ? "Edit Content" : "Add Content"}
+        </Button>
       </div>
       <Modal
+        size="5xl"
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         scrollBehavior={scrollBehavior}
@@ -100,75 +201,119 @@ export default function Detail() {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Add Content
+                {query.id ? "Edit Content" : "Add Content"}
               </ModalHeader>
               <ModalBody>
-                <div>
-                  <label>List Title:</label>
-                  <Input
-                    type="text"
-                    value={listTitle}
-                    onChange={(e) => setListTitle(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>List Description:</label>
-                  <Input
-                    type="text"
-                    value={listDesc}
-                    onChange={(e) => setListDesc(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Description Title:</label>
-                  <Input
-                    type="text"
-                    value={descTitle}
-                    onChange={(e) => setDescTitle(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Description Text:</label>
-                  <Input
-                    type="text"
-                    value={descText}
-                    onChange={(e) => setDescText(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Image URL:</label>
-                  <Input
-                    type="text"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Image Title:</label>
-                  <Input
-                    type="text"
-                    value={imageTitle}
-                    onChange={(e) => setImageTitle(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label>Image Description:</label>
-                  <Input
-                    type="text"
-                    value={imageDesc}
-                    onChange={(e) => setImageDesc(e.target.value)}
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label>Description Title:</label>
+                    <Input
+                      variant="bordered"
+                      type="text"
+                      value={descTitle}
+                      onChange={(e) => setDescTitle(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label>Description Text:</label>
+                    <Input
+                      variant="bordered"
+                      type="text"
+                      value={descText}
+                      onChange={(e) => setDescText(e.target.value)}
+                    />
+                  </div>
+
+                  {listTitles.map((listTitle, index) => (
+                    <div
+                      key={index}
+                      className="col-span-2 flex items-center space-x-2"
+                    >
+                      <div className="flex-grow">
+                        <label>List Item {index + 1}:</label>
+                        <Input
+                          variant="bordered"
+                          type="text"
+                          value={listTitle.title}
+                          onChange={(e) =>
+                            handleListTitleChange(
+                              index,
+                              "title",
+                              e.target.value
+                            )
+                          }
+                          required
+                        />
+                      </div>
+                      <Button
+                        color="secondary"
+                        onPress={() => handleRemoveListTitle(index)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+
+                  <Button className="col-span-2" onPress={handleAddListTitle}>
+                    <IoMdAdd /> Add List Item
+                  </Button>
+
+                  {images.map((image, index) => (
+                    <div
+                      key={index}
+                      className="col-span-2 flex items-center space-x-2"
+                    >
+                      <div className="flex-grow">
+                        <label>Upload Image {index + 1}:</label>
+                        <Input
+                          variant="bordered"
+                          type="file"
+                          onChange={(e) =>
+                            handleImageFileChange(index, e.target.files[0])
+                          }
+                          required
+                        />
+                        <label>Image Title:</label>
+                        <Input
+                          variant="bordered"
+                          type="text"
+                          value={image.title}
+                          onChange={(e) =>
+                            handleImageChange(index, "title", e.target.value)
+                          }
+                        />
+                        <label>Image Description:</label>
+                        <Input
+                          variant="bordered"
+                          type="text"
+                          value={image.desc}
+                          onChange={(e) =>
+                            handleImageChange(index, "desc", e.target.value)
+                          }
+                        />
+                      </div>
+                      <Button
+                        color="secondary"
+                        onPress={() => handleRemoveImage(index)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+
+                  <Button className="col-span-2" onPress={handleAddImage}>
+                    <IoMdAdd /> Add Image
+                  </Button>
                 </div>
               </ModalBody>
+
               <ModalFooter>
                 <Button color="danger" onPress={onClose}>
                   Close
                 </Button>
-                <Button color="primary" onPress={handleSubmit}>
-                  Add Content
+                <Button color="primary" onPress={handleAddOrUpdate}>
+                  {query.id ? "Save Changes" : "Add Content"}
                 </Button>
               </ModalFooter>
             </>
@@ -176,10 +321,63 @@ export default function Detail() {
         </ModalContent>
       </Modal>
 
+      <div className="grid grid-cols-2 gap-4 pt-10 pb-2">
+        <div className="flex flex-col">
+          <h1 className="text-lg font-bold space-y-3">Title Description</h1>
+          <Input readOnly value={header.descriptions?.[0]?.title || ""} />
+        </div>
+        <div className="flex flex-col">
+          <h1 className="text-lg font-bold space-y-3">Product Description</h1>
+          <Input readOnly value={header.descriptions?.[0]?.desc || ""} />
+        </div>
+      </div>
+
+      <h1 className="text-lg font-bold pt-5 ">List</h1>
+      {listTitles &&
+        listTitles.map((list, index) => (
+          <div key={index} className="grid grid-cols-2 gap-4 pt-4">
+            <div>
+              <Input readOnly value={list.title} />
+            </div>
+            <div></div>
+          </div>
+        ))}
+
+      <h1 className="text-lg font-bold pt-5 pb-2">Image</h1>
+      {images &&
+        images.map((image, index) => (
+          <div key={index} className="grid grid-cols-2 gap-4 pt-4">
+            <div>
+              <img
+                src={`http://localhost:3011/uploads/${image.image}`}
+                alt={image.title}
+                width={500}
+                height={500}
+              />
+            </div>
+            <div className="flex flex-col space-y-5">
+              <div className="flex flex-col">
+                <h1 className="text-lg font-bold space-y-3">Image Title</h1>
+                <Input readOnly value={image.title} />
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-lg font-bold space-y-3">
+                  Image Description
+                </h1>
+                <Input readOnly value={image.desc} />
+              </div>
+            </div>
+          </div>
+        ))}
+
       {response && (
         <div>
           {response.success ? (
-            <h2>Content Added Successfully</h2>
+            <h2>
+              {query.id
+                ? "Changes Saved Successfully"
+                : "Content Added Successfully"}
+            </h2>
           ) : (
             <h2>Error: {response.error}</h2>
           )}

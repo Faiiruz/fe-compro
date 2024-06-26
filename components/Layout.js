@@ -9,7 +9,7 @@ const Layout = ({ children }) => {
         <Sidebar />
         <div className="flex-1">
           <Navbar1 />
-          <main className="p-4 mt-16 font-popin">{children}</main>
+          <main className="p-4 ml-56 font-popin">{children}</main>
         </div>
       </div>
     </>

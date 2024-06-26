@@ -90,17 +90,11 @@ export default function Home() {
     <>
       <Layout>
         <div className="pb-4 text-2xl font-bold">Dashboard</div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <Card>
             <CardBody className="flex flex-row justify-between items-center">
-              <div className="text-xl font-bold">Header</div>
+              <div className="text-xl font-bold">Content</div>
               <div className="text-base">{countHeader}</div>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody className="flex flex-row justify-between items-center">
-              <div className="text-xl font-bold">Images</div>
-              <div className="text-base">0</div>
             </CardBody>
           </Card>
           <Card>

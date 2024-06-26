@@ -12,7 +12,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="md:w-56 w-28 font-mons font-semibold h-screen container bg-black/40 p-4 text-sm">
+    <div className="md:w-56 w-28 font-mons font-semibold h-full fixed bg-black/40 p-4 text-sm">
       <ul className="mt-16">
         <li>
           <Link
@@ -34,16 +34,6 @@ const Sidebar = () => {
             }`}
           >
             <h1 className="hidden md:block">Content</h1>
-          </Link>
-        </li>
-        <li>
-          <Link
-            href="/image"
-            className={`flex items-center gap-4 p-4 rounded-full justify-center md:justify-start ${
-              isActive("/image") ? "bg-gray-400 md:w-full w-20 text-black" : ""
-            }`}
-          >
-            <h1 className="hidden md:block">Image</h1>
           </Link>
         </li>
         <li>
