@@ -11,6 +11,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Textarea,
 } from "@nextui-org/react";
 import { IoMdArrowBack } from "react-icons/io";
 import { IoMdAdd } from "react-icons/io";
@@ -321,54 +322,69 @@ export default function Detail() {
         </ModalContent>
       </Modal>
 
-      <div className="grid grid-cols-2 gap-4 pt-10 pb-2">
-        <div className="flex flex-col">
-          <h1 className="text-lg font-bold space-y-3">Title Description</h1>
-          <Input readOnly value={header.descriptions?.[0]?.title || ""} />
-        </div>
-        <div className="flex flex-col">
-          <h1 className="text-lg font-bold space-y-3">Product Description</h1>
-          <Input readOnly value={header.descriptions?.[0]?.desc || ""} />
-        </div>
-      </div>
-
-      <h1 className="text-lg font-bold pt-5 ">List</h1>
-      {listTitles &&
-        listTitles.map((list, index) => (
-          <div key={index} className="grid grid-cols-2 gap-4 pt-4">
-            <div>
-              <Input readOnly value={list.title} />
-            </div>
-            <div></div>
+      {header.descriptions?.[0]?.title && (
+        <div className="grid grid-cols-2 gap-4 pt-10 pb-2">
+          <div className="flex flex-col">
+            <h1 className="text-lg font-bold space-y-3">Title Description</h1>
+            <Input readOnly value={header.descriptions[0].title} />
           </div>
-        ))}
-
-      <h1 className="text-lg font-bold pt-5 pb-2">Image</h1>
-      {images &&
-        images.map((image, index) => (
-          <div key={index} className="grid grid-cols-2 gap-4 pt-4">
-            <div>
-              <img
-                src={`http://localhost:3011/uploads/${image.image}`}
-                alt={image.title}
-                width={500}
-                height={500}
-              />
+          {header.descriptions?.[0]?.desc && (
+            <div className="flex flex-col">
+              <h1 className="text-lg font-bold space-y-3">
+                Product Description
+              </h1>
+              <Textarea readOnly value={header.descriptions[0].desc} />
             </div>
-            <div className="flex flex-col space-y-5">
-              <div className="flex flex-col">
-                <h1 className="text-lg font-bold space-y-3">Image Title</h1>
-                <Input readOnly value={image.title} />
-              </div>
-              <div className="flex flex-col">
-                <h1 className="text-lg font-bold space-y-3">
-                  Image Description
-                </h1>
-                <Input readOnly value={image.desc} />
+          )}
+        </div>
+      )}
+
+      {listTitles?.length > 0 && (
+        <>
+          <h1 className="text-lg font-bold pt-5 ">List</h1>
+          {listTitles.map((list, index) => (
+            <div key={index} className="grid grid-cols-2 gap-4 pt-4">
+              <div>
+                <Input readOnly value={list.title} />
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </>
+      )}
+
+      {images?.length > 0 && (
+        <>
+          <h1 className="text-lg font-bold pt-5 pb-2">Image</h1>
+          {images.map((image, index) => (
+            <div key={index} className="grid grid-cols-2 gap-4 pt-4">
+              <div>
+                <img
+                  src={`http://localhost:3011/uploads/${image.image}`}
+                  alt={image.title}
+                  width={500}
+                  height={500}
+                />
+              </div>
+              <div className="flex flex-col space-y-5">
+                {image.title && (
+                  <div className="flex flex-col">
+                    <h1 className="text-lg font-bold space-y-3">Image Title</h1>
+                    <Input readOnly value={image.title} />
+                  </div>
+                )}
+                {image.desc && (
+                  <div className="flex flex-col">
+                    <h1 className="text-lg font-bold space-y-3">
+                      Image Description
+                    </h1>
+                    <Textarea readOnly value={image.desc} />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
 
       {response && (
         <div>

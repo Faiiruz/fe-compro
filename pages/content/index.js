@@ -130,29 +130,29 @@ export default function Content() {
     }
   };
 
-  const handleDeleteHeader = async (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, you will not be able to recover this app!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const response = await axios.delete(
-          `http://localhost:3011/headers/${id}`
-        );
-        if (response.status === 200) {
-          Swal.fire("Deleted!", "Your app has been deleted.", "success");
-          fetchHeaderData();
-        } else {
-          Swal.fire("Error!", "Failed to delete app.", "error");
-        }
-      }
-    });
-  };
+  // const handleDeleteHeader = async (id) => {
+  //   Swal.fire({
+  //     title: "Are you sure?",
+  //     text: "Once deleted, you will not be able to recover this app!",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: "Yes, delete it!",
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       const response = await axios.delete(
+  //         `http://localhost:3011/headers/${id}`
+  //       );
+  //       if (response.status === 200) {
+  //         Swal.fire("Deleted!", "Your app has been deleted.", "success");
+  //         fetchHeaderData();
+  //       } else {
+  //         Swal.fire("Error!", "Failed to delete app.", "error");
+  //       }
+  //     }
+  //   });
+  // };
 
   const pages = Math.ceil(headers.length / rowsPerPage);
 
@@ -253,8 +253,8 @@ export default function Content() {
           <TableHeader>
             <TableColumn className="text-center">Name</TableColumn>
             <TableColumn className="text-center">Created At</TableColumn>
-            <TableColumn className="text-center">Updated At</TableColumn>
-            <TableColumn className="text-center">Action</TableColumn>
+            {/* <TableColumn className="text-center">Updated At</TableColumn> */}
+            {/* <TableColumn className="text-center">Action</TableColumn> */}
           </TableHeader>
           <TableBody items={items}>
             {items.map((header) => (
@@ -267,10 +267,10 @@ export default function Content() {
                 <TableCell className="text-center">
                   {header.createdAt}
                 </TableCell>
-                <TableCell className="text-center">
+                {/* <TableCell className="text-center">
                   {header.updatedAt}
-                </TableCell>
-                <TableCell className="flex justify-center items-center">
+                </TableCell> */}
+                {/* <TableCell className="flex justify-center items-center">
                   <Button
                     isIconOnly
                     color="warning"
@@ -289,7 +289,7 @@ export default function Content() {
                   >
                     <FaTrash />
                   </Button>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             ))}
           </TableBody>
